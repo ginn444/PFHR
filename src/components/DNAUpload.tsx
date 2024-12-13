@@ -3,29 +3,37 @@ import { Upload } from 'lucide-react';
 import { DNAFile } from '../types';
 
 interface DNAUploadProps {
-  onFileSelect: (file: DNAFile | null) => void;
+  onFileSelect: (fileInfo: DNAFile | null, rawFile?: File) => void;
 }
 
 export function DNAUpload({ onFileSelect }: DNAUploadProps) {
-  const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      const file = e.dataTransfer.files[0];
+  const handleFile = useCallback(
+    (file: File) => {
       if (file) {
-        onFileSelect({ name: file.name, size: file.size });
+        onFileSelect(
+          { name: file.name, size: file.size },
+          file
+        );
       }
     },
     [onFileSelect]
   );
 
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    },
+    [handleFile]
+  );
+
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file) {
-        onFileSelect({ name: file.name, size: file.size });
-      }
+      if (file) handleFile(file);
     },
-    [onFileSelect]
+    [handleFile]
   );
 
   return (
